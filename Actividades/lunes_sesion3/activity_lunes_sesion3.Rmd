@@ -1,0 +1,286 @@
+---
+title: "Manejar datos en R"
+lang: "es_CL"
+description: "Ejercicios para la gestión de datos en R"
+output:
+  distill::distill_article:
+    toc: true
+    toc_float: true
+    pandoc_args: ["--number-sections"]
+bibliography: "./cursoBiodata.bib"
+---
+
+```{r echo=F, message=F,warning=F, purl=FALSE}
+library(knitr)
+library(kableExtra)
+library(downloadthis)
+```
+
+
+```{r echo=F, message=F,warning=F, purl=FALSE, results='hide', eval=!interactive()}
+fileR<-purl(knitr::current_input(),documentation = 1, quiet=T)
+file.rename(fileR,paste0("./download/R_code/documentation/",fileR))
+```
+
+
+
+```{r echo=F, message=F,warning=F, purl=FALSE, eval=!interactive()}
+download_link(
+  link = paste0("https://raw.githubusercontent.com/marbotte/cursoBiodata/master/download/R_code/documentation/",fileR),
+  button_label = "Download R script",
+  button_type = "default",
+  has_icon = TRUE,
+  icon = "fa fa-save",
+  self_contained = TRUE
+)  
+```
+
+En este documento, vamos a utilizar varios ejercicios para familiarizarnos con la gestión de datos en R.
+Les aconsejo:
+
+* Crear una carpeta única para poner todo el contenido del curso
+* descargar la carpeta de datos del curso, y ponerla como sub-carpeta "Datos" 
+* Crear una subcarpeta "scripts_R" donde poner todos los codigos R que van a escribir en los proximos días:
+  + Pensar en la organización de esos codigos (1 archivo por sesión, o un archivo por ejercicio)
+  + Poner nombres de archivos que les permita volver a mirarlo, en 1 mes, o 10 años, si necesitan hacer un tratamiento parecido a lo que hicieron en un ejercicio
+* Crear una subcarpeta diferente "Resultados" para guardar archivos creados desde sus codigos en R, figuras, o datos
+
+```{r}
+fol_Datos <- "../Datos/"
+fol_Results <- "../Resultados/"
+```
+  
+
+# Utilizar filtros simples
+
+## Ejercicio
+
+1. Crear una matriz de abundancia con únicamente los sitios de referencia de las hydro-eco-región de primer nivel: 2, 6 y 7 (Sur-Este de Francia)
+   + la matriz no puede tener especies que no están presentes en esos sitios
+   + ordenar las columnas por orden alfabético de los códigos de especies
+2. Comparar la riqueza de las especies en los 5% de los sitios de agua más acida y lo 5% de los sitios de agua más alcalina de esa nueva matriz
+
+
+## Los datos {#diatomeas}
+
+En esta actividad vamos a utilizar un juego de datos de diatomeas de los ríos franceses que se utilizó para varios proyectos, incluído mi tesis de doctorado [@Tison2005;@Bottin2014a].
+
+El juego de datos está en la carpeta de los datos en un archivo "diatomeas.RData".
+Se carga así:
+
+```{r}
+(load(paste0(fol_Datos,"diatomeas.RData")))
+```
+Pueden ver que el archivo tiene variós elementos:
+
+* *sp_abund_mat* es la matriz de abundancia de las especies de diatomeas en los sitios
+* *reference_sites* es un vector logico que indica para cada sitio si es un sitio de referencia (en terminos de calidad del agua)
+* *env_info* es un data.frame que contiene las variables de caracterisación ambiental de los sitios muestreados
+* *coord_x_y* contiene las coordenadas de los sitios
+
+El juego de datos está organizado de una manera que permite hacer vinculos directos entre las tablas: todas los objetos se corresponden elemento por elemento.
+
+***************
+
+**Anotar**: esa organización de los datos es una mala practica. Es mucho mejor utilizar nombres de sitios y referencias explicitas a esos nombres en cada una de las tablas, pero nos sirve para este primer ejercicio!
+
+
+**************
+
+```{r}
+nrow(sp_abund_mat)
+length(reference_sites)
+nrow(env_info)
+nrow(coord_x_y)
+```
+
+Dentro de las variables de caracterización ambiental, existen variables que nos interesan para el ejercicio.
+La variable `HER1Lyon` permite separar las hydro-eco-regiones:
+
+```{r}
+barplot(table(env_info$HER1Lyon),cex.names=.65,xlab="Hydro-Eco-Región de nivel 1",ylab="Número de muestreos")
+```
+
+La variable `PH` nos da el valor de potencial $H^+$ (los valores más pequeños son las aguas más acidas, los valores más altos son las aguas más alcalinas).
+
+```{r}
+hist(env_info$PH,main="",xlab="pH")
+```
+
+## Indicaciones para el ejercicio
+
+Para poder hacer este ejercicio, consultar la documentación sobre:
+
+* [Clases modos y filtros en R](./doc_R_clases_modos.html)
+
+Además, puede ser útil mirar las ayudas de las funciones siguientes:
+
+* `matrix` para crear una matriz
+* `Comparison` para las pruebas booleanas `==`, `!=`, `>`, `>=`, `<` 
+* `Logic` para los operadores logicos `&` y `|`
+* `as.logical` y `mode` para cambiar el modo de variables numericas a logicas
+* `colSums` y `rowSums` para calcular las sumas de las filas y columnas de un array
+* [`quantile`](https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/quantile) para calcular los cuantiles de valor de un vector
+
+# Relaciones entre tablas en R
+
+## Ejercicio
+
+La base de datos de diatomeas descrita en el primer ejercicio referencia los taxones por sus códigos, que están definidos por varios expertos europeos, pero esos códigos no son siempre especies, pueden corresponder a varios niveles taxonómicos.
+
+Imaginemos que un grupo de investigadores quiere desarrollar un indice simple de calidad del agua como un cociente entre la abundancia de la familia *Fragilariaceae* y la familia *Naviculaceae*.
+
+1. Calcular ese indice para cada una de las muestras de la matriz sp_abund_mat
+1. Comparar los valores entre los sitios de referencia y los demás
+
+*Ejercicio suplementario para utilizar el mismo tipo de razonamiento* (solo para si tenemos tiempo):
+
+¡Hacer una matriz por nivel taxonomico!
+
+
+
+## Los datos
+
+El archivo "diatomTaxonomy.RData" contiene 2 objetos:
+
+* taxonomy que contiene informaciones sobre los taxones
+* synonyms que contiene las sinonimías entre taxones (la taxonomía de las diatomeas es muy... dinámica!)
+
+```{r}
+(load(paste0(fol_Datos, "diatomTaxonomy.RData")))
+```
+
+
+La tabla que nos interesa es el data.frame "taxonomy":
+
+```{r}
+str(taxonomy)
+```
+
+Como pueden ver la primera columna contiene los códigos que tenemos como nombres de columna de la matriz sp_abund_mat
+
+## Indicaciones para el ejercicio
+
+[Este documento](doc_R_buscarRelacionar.html) muestra como funcionan las funciones `which` y `match` que son útil para este ejercicio.
+
+[Este documento](doc_R_structuraControl.html) tiene información sobre bucles.
+
+
+
+
+
+# Leer un archivo complejo
+
+## Ejercicio
+
+Pasar los datos contenidos en el archivo "fitosociologiaFagusFrancia.xlsx" en:
+
+- Una matriz de cobertura sitio x especie y la cobertura en porcentaje en la matriz
+- Un data frame de información sobre los sitios
+
+**No modifiquen el archivo excel, todo se puede hacer en R**, es por enfrentarse a este tipo de dificultades que nos mejoremos en R.
+
+## Los datos
+
+Para su tesis de doctorado en la universidad de Burdeos sobre las comunidades de los bosques de hayas y sus distribuciones en la región de Burdeos, Marion Walbott [-@Walbott2018] ha utilizado varios datos fitosociológicos antiguos.
+En el archivo, pueden ver la transcripción de las tablas fitosociologicas de @Lapraz1963.
+
+Esa tablas utilizan una escala de Braun-Blanquet:
+
+```{r}
+bbScale <-data.frame(
+  code=c("r","+",as.character(1:5)),
+  description= c("Menos del 1% de cobertura, 3-5 individuos", "Menos del 5% de cobertura, pocos individuos","~5% más individuos","5%-25%","25%-50%","50%-75%","75%-100%"),
+  minPercent=c(0,1,5,5,25,50,75),
+  maxPercent=c(1,5,5,25,50,75,100)
+)
+bbScale$finalVal <- (bbScale$minPercent+bbScale$maxPercent)/2
+
+```
+
+
+```{r purl=FALSE, echo=F, eval=!interactive()}
+knitr::kable(bbScale)
+```
+
+
+## Indicaciones para el ejercicio
+
+Para poder hacer este ejercicio, consultar la documentación sobre:
+
+* [Importar y exportar datos en R](doc_R_import_export.html)
+* [funciones match y which](doc_R_buscarRelacionar.html)
+
+
+Además, puede ser útil mirar las ayudas de las funciones siguientes:
+
+* `openxlsx::read.xlsx` es una de las funciones para leer datos en archivos excel, no dudar en buscar los argumentos que les pueden facilitar el ejercicio
+* `is.na` permite saber cuales son los valores que faltan en un vector, da un vector logico
+* `matrix` para crear una matriz
+* `cbind` y `rbind` permiten concatenar arrays por filas o columnas
+* `paste` permite pegar varias cadenas de caracter juntas
+* `Comparison` para las pruebas booleanas `==`, `!=`, `>`, `>=`, `<` 
+* `Logic` para los operadores logicos `&` y `|`
+* `as.logical` y `mode` para cambiar el modo de variables numericas a logicas
+
+
+
+
+# Construir funciones
+
+En una base de datos, utilizamos este tipo de tablas para almacenar las abundancias o presencias de especies:
+
+
+| Unidad de muestreo | Especie | abundancia|
+|--------------------|---------|-----------|
+| Bogotá | Canis lupus | 3000 |
+| Bogotá | Felis catus | 1000 |
+| Chingaza | Tremarctos ornatus | 50 |
+| Chingaza | Canis lupus | 100 |
+| Chingaza | Odocoileus virginianus | 200 |
+
+Cuando vayamos a explorar las bases de datos estructuradas, les explicaré el porque de esa forma!
+
+
+Desafortunadamente, los programas de análisis estadísticos funcionan mejor con este formato:
+
+| | Canis lupus | Felis catus | Tremarctos ornatus | Odocoileus virginianus|
+|-|-------------|-------------|--------------------|-----------------------|
+|Bogotá|3000|1000|0|0|
+|Chingaza|100|0|50|200|
+
+
+Nota, esas tablas se pueden crear en R para probar las funciones:
+
+```{r}
+df_bog_chinga <- data.frame(
+  UniMuestreo=c(rep("Bogotá",2),rep("Chingaza",3)),
+  Especie=c("Canis lupus","Felis catus","Tremarctos ornatus","Canis lupus","Odocoileus virginianus"),
+  abundancia=c(3000,1000,50,100,200)
+)
+mat_bog_chinga <- matrix(c(3000,100,1000,0,0,50,0,200),nrow=2,dimnames=list(c("Bogotá","Chingaza"),c("Canis lupus","Felis catus","Tramarctos ornatus","Odocoileus viginianus")))
+```
+
+
+## Ejercicio
+
+Contruir las funciones en R que permiten pasar de un formato "base de datos" a una matriz de abundancia o de presencia.
+
+Las funciones deben tener los argumentos adecuados para :
+
+* poder dar el nombre de la columna que contiene los taxones y de las unidades de muestreo
+* poder manejar casos de presencia/ausencia, abundancia
+* poder llenar las matrices con 0 o NA
+* añadir todas las opciones que les parecen útil (un ejercicio más tarde consistira en publicar esas funciones en la forma de un paquete R en GitHub)
+
+Construir una función que permita utilizar el formato "base de datos" y hacer la suma de todos las filas que tienen el mismo taxon en la misma unidad de muestreo, y utilizarla para construir la matriz de genero de diatomeas (ver ejercicio previo).
+
+## Indicaciones para el ejercicio
+
+Puede ser util mirar la documentación sobre:
+
+* [which](doc_R_buscarRelacionar.html)
+* [crear funciones](doc_R_structuraControl.html)
+
+
+
