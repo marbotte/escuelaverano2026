@@ -3,37 +3,19 @@ title: "Manejar datos en R"
 lang: "es_CL"
 description: "Ejercicios para la gestión de datos en R"
 output:
-  distill::distill_article:
+  pdf_document:
     toc: true
     toc_float: true
     pandoc_args: ["--number-sections"]
-bibliography: "./cursoBiodata.bib"
+bibliography: "../data_documents/cursoBiodata.bib"
 ---
 
 ```{r echo=F, message=F,warning=F, purl=FALSE}
 library(knitr)
 library(kableExtra)
-library(downloadthis)
 ```
 
 
-```{r echo=F, message=F,warning=F, purl=FALSE, results='hide', eval=!interactive()}
-fileR<-purl(knitr::current_input(),documentation = 1, quiet=T)
-file.rename(fileR,paste0("./download/R_code/documentation/",fileR))
-```
-
-
-
-```{r echo=F, message=F,warning=F, purl=FALSE, eval=!interactive()}
-download_link(
-  link = paste0("https://raw.githubusercontent.com/marbotte/cursoBiodata/master/download/R_code/documentation/",fileR),
-  button_label = "Download R script",
-  button_type = "default",
-  has_icon = TRUE,
-  icon = "fa fa-save",
-  self_contained = TRUE
-)  
-```
 
 En este documento, vamos a utilizar varios ejercicios para familiarizarnos con la gestión de datos en R.
 Les aconsejo:
@@ -45,11 +27,17 @@ Les aconsejo:
   + Poner nombres de archivos que les permita volver a mirarlo, en 1 mes, o 10 años, si necesitan hacer un tratamiento parecido a lo que hicieron en un ejercicio
 * Crear una subcarpeta diferente "Resultados" para guardar archivos creados desde sus codigos en R, figuras, o datos
 
-```{r}
-fol_Datos <- "../Datos/"
-fol_Results <- "../Resultados/"
+```{r, echo=F}
+fol_Datos <- "../../../data_documents/Data/"
+fol_Results <- "../../../data_documents/Results/"
 ```
   
+  
+```r
+fol_Datos <- "../Datos"
+for_Results <- "../Resultados/"
+```
+
 
 # Utilizar filtros simples
 
@@ -161,9 +149,9 @@ Como pueden ver la primera columna contiene los códigos que tenemos como nombre
 
 ## Indicaciones para el ejercicio
 
-[Este documento](doc_R_buscarRelacionar.html) muestra como funcionan las funciones `which` y `match` que son útil para este ejercicio.
+[Este documento](https://marbotte.github.io/biodata2024/doc_R_buscarRelacionar.html) muestra como funcionan las funciones `which` y `match` que son útil para este ejercicio.
 
-[Este documento](doc_R_structuraControl.html) tiene información sobre bucles.
+[Este documento](https://marbotte.github.io/biodata2024/doc_R_structuraControl.html) tiene información sobre bucles.
 
 
 
@@ -178,7 +166,7 @@ Pasar los datos contenidos en el archivo "fitosociologiaFagusFrancia.xlsx" en:
 - Una matriz de cobertura sitio x especie y la cobertura en porcentaje en la matriz
 - Un data frame de información sobre los sitios
 
-**No modifiquen el archivo excel, todo se puede hacer en R**, es por enfrentarse a este tipo de dificultades que nos mejoremos en R.
+**No modifiquen el archivo excel, todo se puede hacer en R**, es al enfrentarse con este tipo de dificultades que nos mejoremos en R.
 
 ## Los datos
 
