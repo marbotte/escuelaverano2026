@@ -3,11 +3,8 @@ title: "Manejar datos en R"
 lang: "es_CL"
 description: "Propuesta de solución para los ejercicios para la gestión de datos en R"
 output:
-  distill::distill_article:
+  pdf_document:
     toc: true
-    toc_float: true
-    pandoc_args: ["--number-sections"]
-bibliography: "./cursoBiodata.bib"
 ---
 
 ```{r echo=F, message=F,warning=F, purl=FALSE}
@@ -15,28 +12,15 @@ library(knitr)
 library(kableExtra)
 library(downloadthis)
 knitr::opts_chunk$set(cache=T)
+knitr::opts_chunk$set(cache=F,tidy=T,tidy.opts = list(width.cutoff = 70))
 ```
 
-
-```{r echo=F, message=F,warning=F, purl=FALSE, results='hide', eval=!interactive()}
-fileR<-purl(knitr::current_input(),documentation = 1, quiet=T)
-file.rename(fileR,paste0("./download/R_code/documentation/",fileR))
+```{r, echo=F}
+fol_Datos <- "../../../data_documents/Data/"
+fol_Results <- "../../../data_documents/Results/"
 ```
 
-
-
-```{r echo=F, message=F,warning=F, purl=FALSE, eval=!interactive()}
-download_link(
-  link = paste0("https://raw.githubusercontent.com/marbotte/cursoBiodata/master/download/R_code/documentation/",fileR),
-  button_label = "Download R script",
-  button_type = "default",
-  has_icon = TRUE,
-  icon = "fa fa-save",
-  self_contained = TRUE
-)  
-```
-
-```{r}
+```r
 fol_Datos <- "../Datos/"
 fol_Results <- "../Resultados/"
 ```
@@ -469,6 +453,16 @@ writeData(wbFinal,"Cobertura", matCobertura, rowNames = T)
 saveWorkbook(wbFinal, file = paste(fol_Results,"fitosociologíaFagusFranciaFinal.xlsx"), overwrite = T)
 ```
 
+## Ejemplo 2
+
+
+```{r}
+require(openxlsx)
+fileXlsx<-loadWorkbook(paste(fol_Datos,"ORIGINAL_especiesclasificadaschile_junio2025.xlsx",sep="/"))
+names(fileXlsx)
+tableEspecies<-read.xlsx(paste(fol_Datos,"ORIGINAL_especiesclasificadaschile_junio2025.xlsx",sep="/"),sheet="Especies")
+```
+
 
 # Construir funciones
 
@@ -491,7 +485,7 @@ Construir una función que permita utilizar el formato "base de datos" y hacer l
 ### Pasar del formato base de datos al formato matriz
 
 ```{r}
-(load("../Datos/bog_chinga.RData"))
+(load(paste(fol_Datos,"bog_chinga.RData",sep="/")))
 df_bog_chinga
 ```
 
@@ -502,7 +496,7 @@ En <https://marbotte.github.io/cursoBiodata/doc_R_buscarRelacionar.html#arrays> 
 #### Principio director
 
 ```{r}
-load("../Datos/bog_chinga.RData")
+load(paste(fol_Datos,"bog_chinga.RData",sep="/"))
 mat_bog_chinga
 (sup0 <- which(mat_bog_chinga > 0, arr.ind = T))
 mat_bog_chinga[sup0]

@@ -1,18 +1,19 @@
 ---
-title: "Manejar datos en R"
+title: "Actividad: Manejar datos en R"
 lang: "es_CL"
-description: "Ejercicios para la gestión de datos en R"
 output:
   pdf_document:
     toc: true
-    toc_float: true
-    pandoc_args: ["--number-sections"]
-bibliography: "../data_documents/cursoBiodata.bib"
+bibliography: "./cursoBiodata.bib"
 ---
 
-```{r echo=F, message=F,warning=F, purl=FALSE}
+
+
+
+```{r echo=F, message=F,warning=F, purl=FALSE,results='hide'}
 library(knitr)
 library(kableExtra)
+knitr::opts_chunk$set(cache=F,tidy.opts = list(width.cutoff = 70))
 ```
 
 
@@ -86,7 +87,8 @@ Dentro de las variables de caracterización ambiental, existen variables que nos
 La variable `HER1Lyon` permite separar las hydro-eco-regiones:
 
 ```{r}
-barplot(table(env_info$HER1Lyon),cex.names=.65,xlab="Hydro-Eco-Región de nivel 1",ylab="Número de muestreos")
+barplot(table(env_info$HER1Lyon), cex.names=.65, xlab="Hydro-Eco-Región de nivel 1",
+        ylab="Número de muestreos")
 ```
 
 La variable `PH` nos da el valor de potencial $H^+$ (los valores más pequeños son las aguas más acidas, los valores más altos son las aguas más alcalinas).
@@ -99,7 +101,7 @@ hist(env_info$PH,main="",xlab="pH")
 
 Para poder hacer este ejercicio, consultar la documentación sobre:
 
-* [Clases modos y filtros en R](./doc_R_clases_modos.html)
+* [Clases modos y filtros en R](https://marbotte.github.io/biodata2024/doc_R_clases_modos.html)
 
 Además, puede ser útil mirar las ayudas de las funciones siguientes:
 
@@ -178,7 +180,9 @@ Esa tablas utilizan una escala de Braun-Blanquet:
 ```{r}
 bbScale <-data.frame(
   code=c("r","+",as.character(1:5)),
-  description= c("Menos del 1% de cobertura, 3-5 individuos", "Menos del 5% de cobertura, pocos individuos","~5% más individuos","5%-25%","25%-50%","50%-75%","75%-100%"),
+  description= c("Menos del 1% de cobertura, 3-5 individuos",
+                 "Menos del 5% de cobertura, pocos individuos",
+                 "~5% más individuos","5%-25%","25%-50%","50%-75%","75%-100%"),
   minPercent=c(0,1,5,5,25,50,75),
   maxPercent=c(1,5,5,25,50,75,100)
 )
@@ -246,7 +250,13 @@ df_bog_chinga <- data.frame(
   Especie=c("Canis lupus","Felis catus","Tremarctos ornatus","Canis lupus","Odocoileus virginianus"),
   abundancia=c(3000,1000,50,100,200)
 )
-mat_bog_chinga <- matrix(c(3000,100,1000,0,0,50,0,200),nrow=2,dimnames=list(c("Bogotá","Chingaza"),c("Canis lupus","Felis catus","Tramarctos ornatus","Odocoileus viginianus")))
+mat_bog_chinga <- matrix(c(3000,100,1000,0,0,50,0,200),
+                         nrow=2,
+                         dimnames=list(c("Bogotá","Chingaza"),
+                                              c("Canis lupus",
+                                                "Felis catus",
+                                                "Tramarctos ornatus",
+                                                "Odocoileus viginianus")))
 ```
 
 
@@ -259,9 +269,9 @@ Las funciones deben tener los argumentos adecuados para :
 * poder dar el nombre de la columna que contiene los taxones y de las unidades de muestreo
 * poder manejar casos de presencia/ausencia, abundancia
 * poder llenar las matrices con 0 o NA
-* añadir todas las opciones que les parecen útil (un ejercicio más tarde consistira en publicar esas funciones en la forma de un paquete R en GitHub)
+* añadir todas las opciones que les parecen útil (un ejercicio más tarde consistirá en publicar esas funciones en la forma de un paquete R en GitHub)
 
-Construir una función que permita utilizar el formato "base de datos" y hacer la suma de todos las filas que tienen el mismo taxon en la misma unidad de muestreo, y utilizarla para construir la matriz de genero de diatomeas (ver ejercicio previo).
+Construir una función que permita utilizar el formato "base de datos" y hacer la suma de todos las filas que tienen el mismo taxón en la misma unidad de muestreo, y utilizarla para construir la matriz de genero de diatomeas (ver ejercicio previo).
 
 ## Indicaciones para el ejercicio
 
